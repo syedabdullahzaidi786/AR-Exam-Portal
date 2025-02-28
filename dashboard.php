@@ -152,6 +152,7 @@ $user = $stmt->fetch();
             <?php
             $stmt = $pdo->prepare("
                 SELECT 
+                    q.id as quiz_id,
                     q.title as quiz_title,
                     r.score,
                     r.total_questions,
@@ -166,7 +167,7 @@ $user = $stmt->fetch();
             $results = $stmt->fetchAll();
             
             if (count($results) > 0) {
-                foreach ($results as $index => $result) {
+                foreach ($results as $result) {
                     $percentage = number_format($result['percentage'], 1);
                     $cardClass = $result['percentage'] >= 80 ? 'border-success' : 
                                ($result['percentage'] >= 60 ? 'border-warning' : 'border-danger');
@@ -175,7 +176,7 @@ $user = $stmt->fetch();
                     ?>
                     <div class="card mb-3 <?php echo $cardClass; ?>" style="border-width: 2px;">
                         <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
-                            <h3 class="h5 mb-0">Q<?php echo $index + 1; ?> Result</h3>
+                            <h3 class="h5 mb-0">Q<?php echo $result['quiz_id']; ?> Result</h3>
                             <small class="text-muted"><?php echo date('M d, Y H:i', strtotime($result['submission_time'])); ?></small>
                         </div>
                         <div class="card-body">
