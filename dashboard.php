@@ -47,6 +47,137 @@ $user = $stmt->fetch();
             max-width: 600px;
             margin: 0 auto 3rem;
         }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .result-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+        }
+
+        .result-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        }
+
+        .result-header {
+            padding: 1.5rem;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            color: white;
+        }
+
+        .result-header h3 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .result-body {
+            padding: 1.5rem;
+        }
+
+        .quiz-title {
+            font-size: 1.1rem;
+            color: #333;
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+
+        .score-display {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .score-number {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .score-total {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .percentage-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .percentage-badge.high {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .percentage-badge.medium {
+            background-color: #fff3e0;
+            color: #f57c00;
+        }
+
+        .percentage-badge.low {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+
+        .date-info {
+            color: #666;
+            font-size: 0.9rem;
+            margin-top: 1rem;
+            text-align: right;
+        }
+
+        .no-results {
+            background: white;
+            border-radius: 15px;
+            padding: 3rem;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .no-results-icon {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 1.5rem;
+            color: #666;
+        }
+
+        .no-results h3 {
+            color: #333;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .no-results p {
+            color: #666;
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+        }
+
+        .btn-view-quizzes {
+            background: var(--primary-color);
+            color: white;
+            padding: 0.8rem 2rem;
+            border-radius: 25px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-view-quizzes:hover {
+            background: #1565c0;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
         
         .quiz-card {
             background: white;
@@ -55,11 +186,6 @@ $user = $stmt->fetch();
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             border: none;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        
-        .quiz-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
         
         .quiz-header {
@@ -140,12 +266,8 @@ $user = $stmt->fetch();
     </nav>
 
     <div class="container my-5">
-        <img src="logo.webp" alt="GIAIC"class="d-block mx-auto mb-4" height="100">
-        <h1 class="text-center main-heading mb-3">Available Quizzes</h1>
-        <p class="text-center sub-heading">
-            Test your knowledge with our adaptive AI-powered quizzes. Select a quiz below to get started.
-        </p>
-
+        <img src="logo.webp" alt="GIAIC" class="d-block mx-auto mb-4" height="100">
+        
         <div class="results-container mb-5">
             <h2 class="text-center main-heading mb-4">Your Quiz Results</h2>
             
@@ -167,50 +289,48 @@ $user = $stmt->fetch();
             $results = $stmt->fetchAll();
             
             if (count($results) > 0) {
+                echo '<div class="results-grid">';
                 foreach ($results as $result) {
                     $percentage = number_format($result['percentage'], 1);
-                    $cardClass = $result['percentage'] >= 80 ? 'border-success' : 
-                               ($result['percentage'] >= 60 ? 'border-warning' : 'border-danger');
-                    $textClass = $result['percentage'] >= 80 ? 'text-success' : 
-                               ($result['percentage'] >= 60 ? 'text-warning' : 'text-danger');
+                    $badgeClass = $result['percentage'] >= 80 ? 'high' : 
+                                ($result['percentage'] >= 60 ? 'medium' : 'low');
                     ?>
-                    <div class="card mb-3 <?php echo $cardClass; ?>" style="border-width: 2px;">
-                        <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
-                            <h3 class="h5 mb-0">Q<?php echo $result['quiz_id']; ?> Result</h3>
-                            <small class="text-muted"><?php echo date('M d, Y H:i', strtotime($result['submission_time'])); ?></small>
+                    <div class="result-card">
+                        <div class="result-header">
+                            <h3>Q<?php echo $result['quiz_id']; ?> Result</h3>
                         </div>
-                        <div class="card-body">
-                            <div class="row align-items-center">
-                                <div class="col-md-6">
-                                    <h4 class="h6 text-muted mb-3">Quiz: <?php echo $result['quiz_title']; ?></h4>
-                                    <p class="mb-0">
-                                        <strong>Score:</strong> <?php echo $result['score']; ?> / <?php echo $result['total_questions']; ?>
-                                    </p>
+                        <div class="result-body">
+                            <div class="quiz-title">
+                                <?php echo $result['quiz_title']; ?>
+                            </div>
+                            <div class="score-display">
+                                <div>
+                                    <div class="score-number"><?php echo $result['score']; ?></div>
+                                    <div class="score-total">out of <?php echo $result['total_questions']; ?> questions</div>
                                 </div>
-                                <div class="col-md-6 text-md-end">
-                                    <div class="h4 <?php echo $textClass; ?> mb-0">
-                                        <?php echo $percentage; ?>%
-                                    </div>
-                                    <small class="text-muted">Overall Performance</small>
+                                <div class="percentage-badge <?php echo $badgeClass; ?>">
+                                    <?php echo $percentage; ?>%
                                 </div>
+                            </div>
+                            <div class="date-info">
+                                Completed on <?php echo date('M d, Y \a\t H:i', strtotime($result['submission_time'])); ?>
                             </div>
                         </div>
                     </div>
                     <?php
                 }
+                echo '</div>';
             } else {
                 ?>
-                <div class="text-center py-5 bg-light rounded">
-                    <div class="mb-3">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="bi bi-clipboard-x text-muted" viewBox="0 0 16 16">
-                            <path d="M6.5 0A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3Zm3 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3Z"/>
-                            <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1A2.5 2.5 0 0 1 9.5 5h-3A2.5 2.5 0 0 1 4 2.5v-1ZM6.854 7.146a.5.5 0 1 0-.708.708L7.293 9l-1.147 1.146a.5.5 0 0 0 .708.708L8 9.707l1.146 1.147a.5.5 0 0 0 .708-.708L8.707 9l1.147-1.146a.5.5 0 0 0-.708-.708L8 8.293 6.854 7.146Z"/>
-                        </svg>
-                    </div>
-                    <h3 class="h4 mb-3">No Results Found</h3>
-                    <p class="text-muted mb-4">You haven't taken any quizzes yet. Start a quiz to see your results here!</p>
-                    <a href="#available-quizzes" class="btn btn-primary">
-                        View Available Quizzes
+                <div class="no-results">
+                    <svg class="no-results-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                    </svg>
+                    <h3>No Quiz Results Yet</h3>
+                    <p>Take your first quiz to see your results here!</p>
+                    <a href="#available-quizzes" class="btn btn-view-quizzes">
+                        Browse Available Quizzes
                     </a>
                 </div>
                 <?php
