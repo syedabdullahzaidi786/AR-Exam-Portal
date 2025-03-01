@@ -282,7 +282,7 @@ $user = $stmt->fetch();
                     (r.score * 100 / r.total_questions) as percentage
                 FROM quiz_results r
                 JOIN quizzes q ON r.quiz_id = q.id
-                WHERE r.user_id = ?
+                WHERE r.user_id = ? AND r.published = TRUE
                 ORDER BY r.submission_time DESC
             ");
             $stmt->execute([$_SESSION['user_id']]);
@@ -327,8 +327,8 @@ $user = $stmt->fetch();
                         <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
                         <polyline points="22 4 12 14.01 9 11.01"></polyline>
                     </svg>
-                    <h3>No Quiz Results Yet</h3>
-                    <p>Take your first quiz to see your results here!</p>
+                    <h3>No Published Results Yet</h3>
+                    <p>Your quiz results will appear here once they are published by the administrator.</p>
                     <a href="#available-quizzes" class="btn btn-view-quizzes">
                         Browse Available Quizzes
                     </a>

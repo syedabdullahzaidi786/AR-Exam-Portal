@@ -45,6 +45,7 @@ CREATE TABLE quiz_results (
     score INT,
     total_questions INT,
     submission_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    published BOOLEAN DEFAULT FALSE,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (quiz_id) REFERENCES quizzes(id) ON DELETE CASCADE
 );
@@ -76,13 +77,6 @@ INSERT INTO quiz_questions (quiz_id, question_text, option_a, option_b, option_c
 
 -- Insert sample users
 INSERT INTO users (name, email, password) VALUES
-('Sir Sohaib', 'sohaib@dif', '123'),
-('Sir Abdullah', 'abdullah@ardev', '123'),
-('Miss Huma', 'camp2@dif', '123');
+('Rajab', 'rajab@dif', '123'),
+('Abdullah', 'abdullah@ardev', '123');
 
--- Insert sample quiz results
-INSERT INTO quiz_results (user_id, quiz_id, score, total_questions) VALUES
-(2, 1, 18, 20),
-(2, 2, 15, 20),
-(3, 1, 16, 20),
-(4, 3, 12, 15);

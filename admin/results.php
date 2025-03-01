@@ -6,6 +6,19 @@ if(!isset($_SESSION['admin_id'])) {
     exit();
 }
 
+// Handle publish/unpublish
+if(isset($_POST['toggle_publish'])) {
+    $result_id = intval($_POST['result_id']);
+    $publish = $_POST['publish'] === 'true' ? 1 : 0;
+    
+    $stmt = $pdo->prepare("UPDATE quiz_results SET published = ? WHERE id = ?");
+    $stmt->execute([$publish, $result_id]);
+    
+    // Redirect to remove POST data
+    header("Location: results.php" . ($search ? "?search=" . urlencode($search) : ""));
+    exit();
+}
+
 // Handle search
 $search = isset($_GET['search']) ? $_GET['search'] : '';
 $searchCondition = $search ? "AND (u.name LIKE :search OR u.email LIKE :search OR q.title LIKE :search)" : "";
@@ -126,6 +139,7 @@ $searchCondition = $search ? "AND (u.name LIKE :search OR u.email LIKE :search O
                                 <th>Score</th>
                                 <th>Percentage</th>
                                 <th>Date</th>
+                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -138,6 +152,8 @@ $searchCondition = $search ? "AND (u.name LIKE :search OR u.email LIKE :search O
                                     r.score,
                                     r.total_questions,
                                     r.submission_time,
+                                    r.published,
+                                    r.id as result_id,
                                     (r.score * 100 / r.total_questions) as percentage
                                 FROM quiz_results r
                                 JOIN users u ON r.user_id = u.id
@@ -166,6 +182,16 @@ $searchCondition = $search ? "AND (u.name LIKE :search OR u.email LIKE :search O
                                 echo "<td><span class='badge percentage-badge {$percentageClass}'>" . 
                                      number_format($percentage, 1) . "%</span></td>";
                                 echo "<td>" . date('M d, Y H:i', strtotime($result['submission_time'])) . "</td>";
+                                echo "<td>
+                                    <form method='POST' class='d-inline'>
+                                        <input type='hidden' name='result_id' value='{$result['result_id']}'>
+                                        <input type='hidden' name='publish' value='" . ($result['published'] ? 'false' : 'true') . "'>
+                                        <button type='submit' name='toggle_publish' class='btn btn-sm " . 
+                                        ($result['published'] ? 'btn-success' : 'btn-secondary') . "'>
+                                            " . ($result['published'] ? 'Published' : 'Unpublished') . "
+                                        </button>
+                                    </form>
+                                </td>";
                                 echo "</tr>";
                             }
                             ?>
